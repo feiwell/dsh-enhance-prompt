@@ -1,0 +1,6 @@
+# Applied when this package is listed in dsh.profile.bundles.
+# The row id is local to the profile; the package name must match package.json.
+
+- insert:
+    - id: enhance-prompt
+      name: dsh-enhance-prompt
