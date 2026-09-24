@@ -74,14 +74,15 @@ const USER_TEMPLATE = `You are a prompt enhancement assistant. Improve the user 
     5. If the user mixes languages, keep a natural matching mix. Do not translate the user's intent into a single language.
     6. These language rules are behavior instructions only; never include language analysis or language labels in the output.
     
-    ENHANCEMENT REQUIREMENTS:
-    1. Return only the enhanced prompt text; do not add explanations, prefaces, markdown fences, labels, or analysis.
-    2. Do not include language labels or meta notes such as "User input is in Chinese" or "Response must be in Chinese".
-    3. Preserve the user's original intent, topic, constraints, and target output type. Do not answer the request.
-    4. Always make a substantive enhancement when possible: clarify the task, scope, constraints, and expected output.
-    5. If the original prompt is already clear, lightly polish it instead of returning it unchanged.
-    6. Keep the enhanced prompt complete and concise. Do not end with an unfinished list, dangling conjunction, or trailing colon.
-    7. Do not add unrelated requirements, unsupported facts, or unnecessary sections.
+	    ENHANCEMENT REQUIREMENTS:
+	    1. Return only the enhanced prompt text; do not add explanations, prefaces, markdown fences, labels, or analysis.
+	    2. Do not include language labels or meta notes such as "User input is in Chinese" or "Response must be in Chinese".
+	    3. Preserve the user's original intent, topic, constraints, and target output type. Do not answer the request.
+	    4. Always make a substantive enhancement when possible: clarify the task, scope, constraints, and expected output.
+	    5. If the original prompt is already clear, lightly polish it instead of returning it unchanged.
+	    6. Keep the enhanced prompt complete and concise. Do not end with an unfinished list, dangling conjunction, or trailing colon.
+	    7. Do not add unrelated requirements, unsupported facts, or unnecessary sections.
+	    8. Output the enhanced prompt exactly once. Never repeat it, never append a second copy, and never restate the same paragraph.
 
     EXAMPLES:
     User input (Chinese): "请帮我解释这段代码的功能"
@@ -133,6 +134,21 @@ function stripWrappingQuotes(text) {
 }
 
 /**
+ * Some models emit the finished prompt twice, back to back. Keep one copy
+ * when the two halves are the same paragraph.
+ */
+function collapseDuplicatedParagraph(text) {
+  const trimmed = text.trim()
+  const compact = trimmed.replace(/\s+/g, '')
+  if (compact.length < 40 || compact.length % 2 !== 0) return trimmed
+  const half = compact.length / 2
+  if (compact.slice(0, half) !== compact.slice(half)) return trimmed
+  const end = trimmed.indexOf(compact[half - 1], half - 1)
+  const first = trimmed.slice(0, end + 1).trim()
+  return first.replace(/\s+/g, '') === compact.slice(0, half) ? first : trimmed
+}
+
+/**
  * Collect visible text from one completion. `block-end` carries the assembled
  * block, so deltas are only a fallback when that block never arrives.
  */
@@ -149,7 +165,28 @@ async function collectText(stream) {
       throw new Error(chunk.reason === 'aborted' ? '已取消' : '模型调用失败')
     }
   }
-  return stripWrappingQuotes(text)
+	  return collapseDuplicatedParagraph(stripWrappingQuotes(text))
+}
+
+/**
+ * A rewrite is a short text task. The composer's high reasoning effort makes
+ * it wait through a long hidden chain of thought, so use the cheapest effort
+ * the selected model actually offers.
+ */
+async function fastestEffort(ctx, selection, signal) {
+  try {
+    const info = await ctx.llm.resolveModelInfo(selection.provider, selection.model, signal)
+    const efforts = info?.reasoning?.efforts ?? []
+    const rank = { off: 0, minimal: 1, low: 2, medium: 3, high: 4, xhigh: 5, max: 6 }
+    const fastest = efforts.reduce((best, effort) => {
+      const id = String(effort?.id ?? '')
+      if (!(id in rank)) return best
+      return best === undefined || rank[id] < rank[best] ? id : best
+    }, undefined)
+    return fastest
+  } catch {
+    return undefined
+  }
 }
 
 async function executeEnhance(ctx, invocation) {
@@ -163,9 +200,11 @@ async function executeEnhance(ctx, invocation) {
   }
 
   try {
+    const reasoningEffort = await fastestEffort(ctx, selection, invocation.signal)
     const stream = ctx.llm.stream({
       provider: selection.provider,
       model: selection.model,
+      ...(reasoningEffort === undefined ? {} : { reasoningEffort }),
       system: SYSTEM_TEMPLATE,
       messages: [{ role: 'user', content: [{ type: 'text', text: renderUserPrompt(draft, invocation.mode) }] }],
       temperature: 0.2,
@@ -240,7 +279,7 @@ function apply(ctx) {
       const outcome = await executeEnhance(ctx, {
         rawInput: draft,
         mode,
-        signal: AbortSignal.timeout(60_000),
+        signal: AbortSignal.timeout(30_000),
       })
       if (outcome.kind === 'error') {
         sendJson(res, 502, { error: outcome.text })
