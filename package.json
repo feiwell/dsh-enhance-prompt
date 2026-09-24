@@ -1,6 +1,6 @@
 {
   "name": "dsh-enhance-prompt",
-  "description": "Rewrites the DeepSeek Harness composer draft in place, with work, code, and design modes",
+  "description": "这是一个提示词增强插件",
   "version": "0.1.0",
   "type": "module",
   "main": "index.js",
