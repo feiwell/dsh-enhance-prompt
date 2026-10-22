@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="heroTitle heroDesc">
+  <title id="heroTitle">dsh-enhance-prompt：在 DeepSeek Harness 输入栏一键改写提示词</title>
+  <desc id="heroDesc">左侧是插件名称与一句话说明，右侧是一个输入栏示意：草稿「帮我写个登录页」右侧有一个高亮按钮，下面是改写后的三行结构化提示词。</desc>
+
+  <rect width="1200" height="380" rx="26" fill="#0B0E13"/>
+
+  <g id="title-block" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <text x="64" y="84" font-size="20" fill="#8A94A6" letter-spacing="0.6">DSH PLUGIN · 输入栏提示词增强</text>
+
+    <text x="62" y="160" font-size="54" font-weight="700" fill="#E8EDF5"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">dsh-enhance-prompt</text>
+
+    <text x="64" y="218" font-size="25" fill="#C3CCDA">点一下输入栏右侧的按钮，把随手写的草稿</text>
+    <text x="64" y="256" font-size="25" fill="#C3CCDA">改写成更清晰、更具体的提示词。</text>
+
+    <g id="metadata" font-size="19" fill="#8A94A6">
+      <text x="64" y="322">三种模式 · 网页端 + 桌面端 · 不改动内置界面</text>
+    </g>
+  </g>
+
+  <g id="composer-proof" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <rect x="688" y="48" width="448" height="284" rx="18" fill="#131821" stroke="#232A38" stroke-width="1.5"/>
+
+    <rect x="712" y="72" width="112" height="32" rx="9" fill="#1B2230"/>
+    <text x="730" y="93" font-size="18" fill="#A9B4C6">代码开发</text>
+    <path d="M806 85l5 6 5-6" fill="none" stroke="#7C879B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <text x="712" y="150" font-size="21" fill="#7C879B">帮我写个登录页</text>
+
+    <rect x="1080" y="128" width="32" height="32" rx="10" fill="#FFB454"/>
+    <g stroke="#12161D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M1088 152l2.2-5.6 9.4-9.4 3.4 3.4-9.4 9.4z"/>
+      <path d="M1097.6 140.4l3.4 3.4"/>
+    </g>
+
+    <path d="M712 186h400" stroke="#232B3A" stroke-width="1.5"/>
+
+    <g font-size="18.5" fill="#E4EAF4">
+      <text x="712" y="222">为现有项目新增登录页：邮箱 + 密码输入框；</text>
+      <text x="712" y="254">校验格式与非空，失败给出中文提示；</text>
+      <text x="712" y="286">成功后跳转 /dashboard。</text>
+    </g>
+
+    <text x="712" y="316" font-size="17" fill="#6E798C">不满意？点一下恢复原文。</text>
+  </g>
+</svg>

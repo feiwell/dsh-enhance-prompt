@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="modesTitle modesDesc">
+  <title id="modesTitle">三种收束模式：日常办公、代码开发、设计创意</title>
+  <desc id="modesDesc">三张卡片分别说明每种模式把草稿收成什么、各补哪些信息；底部注明模式只改变收束方向，不改底层模型和改写模板。</desc>
+
+  <rect width="1200" height="430" rx="26" fill="#0B0E13"/>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+
+    <g id="mode-work">
+      <rect x="48" y="56" width="352" height="318" rx="16" fill="#0F141C" stroke="#202836" stroke-width="1.5"/>
+      <text x="72" y="106" font-size="26" font-weight="600" fill="#E8EDF5">日常办公</text>
+      <text x="72" y="132" font-size="16" fill="#FFB454"
+            font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">work</text>
+      <path d="M72 152h304" stroke="#202836" stroke-width="1.5"/>
+
+      <g font-size="18.5" fill="#B9C3D2">
+        <text x="72" y="190">把草稿收成办公任务，</text>
+        <text x="72" y="218">交付物是办公结果。</text>
+      </g>
+      <g font-size="18" fill="#98A3B6">
+        <text x="72" y="266">受众、语气、篇幅</text>
+        <text x="72" y="298">交付格式与文件名</text>
+        <text x="72" y="330">新建还是改现有文件</text>
+      </g>
+    </g>
+
+    <g id="mode-code">
+      <rect x="424" y="56" width="352" height="318" rx="16" fill="#0F141C" stroke="#202836" stroke-width="1.5"/>
+      <text x="448" y="106" font-size="26" font-weight="600" fill="#E8EDF5">代码开发</text>
+      <text x="448" y="132" font-size="16" fill="#FFB454"
+            font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">code</text>
+      <path d="M448 152h304" stroke="#202836" stroke-width="1.5"/>
+
+      <g font-size="18.5" fill="#B9C3D2">
+        <text x="448" y="190">把草稿收成要实现</text>
+        <text x="448" y="218">的功能任务。</text>
+      </g>
+      <g font-size="18" fill="#98A3B6">
+        <text x="448" y="266">输入输出与边界</text>
+        <text x="448" y="298">错误怎么处理</text>
+        <text x="448" y="330">怎样算做完</text>
+      </g>
+    </g>
+
+    <g id="mode-design">
+      <rect x="800" y="56" width="352" height="318" rx="16" fill="#0F141C" stroke="#202836" stroke-width="1.5"/>
+      <text x="824" y="106" font-size="26" font-weight="600" fill="#E8EDF5">设计创意</text>
+      <text x="824" y="132" font-size="16" fill="#FFB454"
+            font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">design</text>
+      <path d="M824 152h304" stroke="#202836" stroke-width="1.5"/>
+
+      <g font-size="18.5" fill="#B9C3D2">
+        <text x="824" y="190">把草稿收成设计任务，</text>
+        <text x="824" y="218">用设计语言描述。</text>
+      </g>
+      <g font-size="18" fill="#98A3B6">
+        <text x="824" y="266">媒介、风格、受众</text>
+        <text x="824" y="298">尺寸或比例</text>
+        <text x="824" y="330">必须保留与明确不要</text>
+      </g>
+    </g>
+
+    <text x="48" y="412" font-size="18" fill="#6E798C">模式只改变收束方向，不改底层模型和改写模板。</text>
+
+  </g>
+</svg>

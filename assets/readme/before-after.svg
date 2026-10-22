@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="baTitle baDesc">
+  <title id="baTitle">同一句草稿在代码开发模式下的改写前后对照</title>
+  <desc id="baDesc">左边是草稿「帮我写个登录页」，只有十八个字；右边是改写后的提示词，写明范围、字段、校验、失败态、跳转与不引入新依赖。</desc>
+
+  <rect width="1200" height="430" rx="26" fill="#0B0E13"/>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+
+    <g id="before">
+      <rect x="48" y="56" width="520" height="318" rx="16" fill="#0F141C" stroke="#202836" stroke-width="1.5"/>
+      <text x="72" y="96" font-size="17" fill="#7C879B" letter-spacing="0.5"
+            font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">改写前 · 草稿</text>
+
+      <text x="72" y="176" font-size="26" fill="#93A0B4">帮我写个登录页</text>
+      <rect x="72" y="192" width="3" height="30" rx="1.5" fill="#FFB454"/>
+
+      <text x="72" y="300" font-size="18" fill="#6E798C">18 个字，没有受众、没有范围、</text>
+      <text x="72" y="328" font-size="18" fill="#6E798C">没有验收标准。</text>
+    </g>
+
+    <g id="action">
+      <path d="M580 215h32" stroke="#FFB454" stroke-width="2" stroke-linecap="round"/>
+      <path d="M604 208l9 7-9 7" fill="none" stroke="#FFB454" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g id="after">
+      <rect x="632" y="56" width="520" height="318" rx="16" fill="#131821" stroke="#2A3446" stroke-width="1.5"/>
+      <text x="656" y="96" font-size="17" fill="#FFB454" letter-spacing="0.5"
+            font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">改写后 · 提示词</text>
+
+      <g font-size="19" fill="#E4EAF4">
+        <text x="656" y="146">为现有 React + Vite 项目新增登录页：</text>
+        <text x="656" y="178">邮箱 + 密码输入框、记住我、提交按钮；</text>
+        <text x="656" y="210">提交前校验邮箱格式与非空，失败时在</text>
+        <text x="656" y="242">字段下方给中文提示；请求期间按钮显示</text>
+        <text x="656" y="274">加载态并禁止重复提交；成功后跳转</text>
+        <text x="656" y="306">/dashboard。不引入新的 UI 库。</text>
+      </g>
+    </g>
+
+  </g>
+</svg>
