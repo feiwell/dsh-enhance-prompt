@@ -234,7 +234,11 @@ async function executeEnhance(ctx, invocation) {
       signal: invocation.signal,
     })
     const enhanced = await collectText(stream)
-    if (enhanced.trim() === '') return { kind: 'error', text: '模型返回了空结果，提示词没有变化。' }
+    if (enhanced.trim() === '') {
+      // Name the model: an empty completion is usually a provider or key
+      // problem, and the model id is what makes that diagnosable.
+      return { kind: 'error', text: `模型 ${selection.provider}/${selection.model} 返回了空结果，提示词没有变化。` }
+    }
     return { kind: 'success', text: enhanced }
   } catch (error) {
     if (invocation.signal.aborted) return { kind: 'error', text: '已取消' }
@@ -243,21 +247,45 @@ async function executeEnhance(ctx, invocation) {
   }
 }
 
+/**
+ * Read a JSON body with a hard byte budget.
+ *
+ * An oversized request is answered, not dropped: the rest of the stream is
+ * discarded so the client can still receive the 413. Destroying the socket
+ * instead would surface as a transport error on the other side, which reads
+ * like a crashed server rather than a rejected input.
+ */
 function readBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = []
     let size = 0
+    let settled = false
     req.on('data', (chunk) => {
+      if (settled) return
       size += chunk.length
       if (size > MAX_BODY_BYTES) {
+        settled = true
+        chunks.length = 0
         reject(new Error('too-large'))
-        req.destroy()
         return
       }
       chunks.push(chunk)
     })
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
-    req.on('error', reject)
+    req.on('end', () => {
+      if (settled) return
+      settled = true
+      resolve(Buffer.concat(chunks).toString('utf8'))
+    })
+    req.on('error', (error) => {
+      if (settled) return
+      settled = true
+      reject(error)
+    })
+    req.on('aborted', () => {
+      if (settled) return
+      settled = true
+      reject(new Error('aborted'))
+    })
   })
 }
 

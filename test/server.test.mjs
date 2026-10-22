@@ -71,15 +71,27 @@ function makeCtx({ text = "改写结果", selection = { provider: "p", model: "m
 /** Minimal req/res pair for the route handler. */
 function makeReq({ method = "POST", body = "" }) {
   const listeners = {};
+  let destroyed = false;
   return {
     method,
+    destroyed: () => destroyed,
     on(event, fn) {
       (listeners[event] ??= []).push(fn);
       return this;
     },
-    destroy() {},
+    destroy() {
+      destroyed = true;
+    },
     async start() {
-      if (body !== "") for (const fn of listeners.data ?? []) fn(Buffer.from(body));
+      if (body !== "") {
+        // Feed the body in chunks so an oversized request trips the budget
+        // mid-stream, the way a real slow client would.
+        const buf = Buffer.from(body);
+        const step = 16 * 1024;
+        for (let at = 0; at < buf.length; at += step) {
+          for (const fn of listeners.data ?? []) fn(buf.subarray(at, Math.min(at + step, buf.length)));
+        }
+      }
       for (const fn of listeners.end ?? []) fn();
     },
   };
@@ -110,7 +122,7 @@ async function callRoute(ctx, { method = "POST", payload } = {}) {
   const done = route.handler(req, res);
   await req.start();
   await done;
-  return { status: res.status, json: res.body === "" ? null : JSON.parse(res.body), headers: res.headers };
+  return { status: res.status, json: res.body === "" ? null : JSON.parse(res.body), headers: res.headers, req };
 }
 
 const mod = await import(INDEX_URL);
@@ -193,6 +205,15 @@ test("an oversized body answers 413, not a generic error", async () => {
   assert.match(json.error, /48 KB/);
 });
 
+test("an oversized body keeps the connection open so the 413 can be read", async () => {
+  const ctx = makeCtx();
+  mod.apply(ctx);
+  const huge = JSON.stringify({ input: "字".repeat(40000) });
+  const { status, req } = await callRoute(ctx, { payload: huge });
+  assert.equal(status, 413);
+  assert.equal(req.destroyed(), false, "destroying the socket turns the 413 into a transport error");
+});
+
 test("a missing default model answers 503", async () => {
   const ctx = makeCtx({ selection: {} });
   mod.apply(ctx);
@@ -207,6 +228,7 @@ test("an empty model answer is reported instead of wiping the draft", async () =
   const { status, json } = await callRoute(ctx, { payload: { input: "x" } });
   assert.equal(status, 502);
   assert.match(json.error, /空结果/);
+  assert.match(json.error, /p\/m/, "the failing model must be named for diagnosis");
 });
 
 test("a failing stream answers 502 with the reason", async () => {
