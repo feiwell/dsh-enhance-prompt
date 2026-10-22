@@ -97,12 +97,21 @@ dsh plugin --profile desktop add feiwell/dsh-enhance-prompt
 - 图标按运行时 `dsh-client-ui-primitives` 的导出去取，新旧命名都覆盖；两套都取不到时退回内置 SVG，不会让输入栏消失。
 - Node ≥ 22.19.0，DeepSeek Harness 自带的 Node 已满足。
 
+## 开发
+
+```sh
+npm test        # 36 项：前端组件 16 项 + 服务端 20 项，无需启动 Harness
+```
+
+前端用例用一个最小 hook shim 直接渲染插槽组件，覆盖图标回退、空输入、忙状态、改写成功、还原、报错不改稿、超长拒绝、模式记忆、卸载中止请求；服务端用例用假的 cordis 上下文覆盖参数、状态码、模式归一、去重、推理档位、命令与取消。
+
 ## 项目结构
 
 ```
 index.js          服务端：/enhance 命令与 POST /api/enhance-prompt
 lib/client.js     前端：输入栏右侧的模式菜单与增强按钮
 cordis.patch.yml  安装补丁：把插件自动加进 profile，网页版与桌面版通用
+test/             前后端回归测试（node --test）
 assets/readme/    README 使用的 SVG
 ```
 
