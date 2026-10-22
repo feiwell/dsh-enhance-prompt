@@ -100,19 +100,27 @@ dsh plugin --profile desktop add feiwell/dsh-enhance-prompt
 ## 开发
 
 ```sh
-npm test        # 36 项：前端组件 16 项 + 服务端 20 项，无需启动 Harness
+npm test              # 36 项：前端组件 16 项 + 服务端 20 项，无需启动 Harness
+npm run check:install # 安装后自检：manifest、/client 导出、补丁、宿主服务、图标、插槽
 ```
 
 前端用例用一个最小 hook shim 直接渲染插槽组件，覆盖图标回退、空输入、忙状态、改写成功、还原、报错不改稿、超长拒绝、模式记忆、卸载中止请求；服务端用例用假的 cordis 上下文覆盖参数、状态码、模式归一、去重、推理档位、命令与取消。
 
+`check:install` 会按 loader 的判断顺序检查安装结果；追加 app 目录还能核对图标与插槽是否存在于当前构建：
+
+```sh
+node scripts/check-install.cjs <插件目录> "<DeepSeek Harness>/resources/app/dsh"
+```
+
 ## 项目结构
 
 ```
-index.js          服务端：/enhance 命令与 POST /api/enhance-prompt
-lib/client.js     前端：输入栏右侧的模式菜单与增强按钮
-cordis.patch.yml  安装补丁：把插件自动加进 profile，网页版与桌面版通用
-test/             前后端回归测试（node --test）
-assets/readme/    README 使用的 SVG
+index.js                服务端：/enhance 命令与 POST /api/enhance-prompt
+lib/client.js           前端：输入栏右侧的模式菜单与增强按钮
+cordis.patch.yml        安装补丁：把插件自动加进 profile，网页版与桌面版通用
+test/                   前后端回归测试（node --test）
+scripts/check-install.cjs  安装后自检
+assets/readme/          README 使用的 SVG
 ```
 
 ## 许可

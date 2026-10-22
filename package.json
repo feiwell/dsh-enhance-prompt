@@ -17,7 +17,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "node --test test/client.test.cjs test/server.test.mjs"
+    "test": "node --test test/client.test.cjs test/server.test.mjs",
+    "check:install": "node scripts/check-install.cjs ."
   },
   "exports": {
     ".": "./index.js",
@@ -28,6 +29,7 @@
     "index.js",
     "lib/client.js",
     "cordis.patch.yml",
+    "scripts/check-install.cjs",
     "assets/readme",
     "README.md",
     "LICENSE"
