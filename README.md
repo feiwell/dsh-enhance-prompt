@@ -9,7 +9,7 @@ DeepSeek Harness 的输入栏插件：把你随手敲的草稿改写成一条更
 
 - **原地改写**：不弹窗、不复制粘贴，结果替换输入框里的文字。
 - **三种收束模式**：日常办公 / 代码开发 / 设计创意，同一句草稿收的方向不一样。
-- **网页端、桌面版通用**：按钮挂在输入栏插槽上，不改动内置界面。
+- **装在桌面版里**：按钮挂在输入栏插槽上，不改动内置界面。
 - **出错不毁稿**：30 秒超时、请求失败都不会用半截结果覆盖你的原文。
 
 ## 先看效果
@@ -23,19 +23,15 @@ DeepSeek Harness 的输入栏插件：把你随手敲的草稿改写成一条更
 
 ## 安装
 
-从 GitHub 装，装完重启 DeepSeek-Harness，输入栏右侧就会出现模式菜单和增强按钮：
+只针对 **DeepSeek-Harness 桌面版**。装之前先**完全退出桌面版**，否则 `dsh` 会提示 profile 被应用独占。
 
 ```sh
-# 桌面版
 dsh plugin --profile desktop add git+https://github.com/feiwell/dsh-enhance-prompt.git
-
-# 网页版
-dsh plugin --profile web add git+https://github.com/feiwell/dsh-enhance-prompt.git
 ```
 
-装 `desktop` profile 前要先**完全退出 DeepSeek-Harness 桌面版**，否则它会提示 profile 被应用独占。
+装完重新打开桌面版，输入栏右侧就会出现模式菜单和增强按钮。插件自带 `cordis.patch.yml`，安装时会自动写进 desktop profile，不用手改配置。
 
-插件自带 `cordis.patch.yml`，安装时会自动写进对应 profile，不用手改配置。也可以让 Agent 代劳：在 DSH 里说一句「装上 https://github.com/feiwell/dsh-enhance-prompt 这个插件」，它会调用插件管理器完成安装。
+也可以让 Agent 代劳：在 DSH 里说一句「装上 https://github.com/feiwell/dsh-enhance-prompt 这个插件」，它会调用插件管理器完成安装。
 
 > 本包尚未发布到 npm，`dsh plugin add dsh-enhance-prompt` 会报 404，请用上面的 git 地址。
 
@@ -92,7 +88,7 @@ dsh plugin --profile web add git+https://github.com/feiwell/dsh-enhance-prompt.g
 
 ## 兼容性
 
-- 在 DSH `0.2.1-rc.2` 的网页端和桌面版实测通过，`package.json` 的 `engines.dsh` 就是这个范围。
+- 在 DSH `0.2.1-rc.2` 的桌面版实测通过（装进 desktop profile 后启动，前端模块图加载该插件、`/plugins/??dsh-enhance-prompt/client.js` 返回 200），`package.json` 的 `engines.dsh` 就是这个范围。
 - 图标按运行时 `dsh-client-ui-primitives` 的导出去取，新旧命名都覆盖；两套都取不到时退回内置 SVG，不会让输入栏消失。
 - Node ≥ 22.19.0，DeepSeek Harness 自带的 Node 已满足。
 
@@ -119,7 +115,7 @@ node scripts/check-install.cjs <插件目录> "<DeepSeek Harness>/resources/app/
 ```
 index.js                   服务端：/enhance 命令与 POST /api/enhance-prompt
 lib/client.js              前端：输入栏右侧的模式菜单与增强按钮
-cordis.patch.yml           安装补丁：把插件自动加进 profile，网页版与桌面版通用
+cordis.patch.yml           安装补丁：把插件自动加进 desktop profile
 icon.svg                   插件图标（市场条目与插件管理页使用）
 test/                      前后端回归测试（node --test）
 scripts/check-install.cjs  安装后自检

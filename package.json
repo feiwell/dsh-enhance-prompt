@@ -1,7 +1,7 @@
 {
   "name": "dsh-enhance-prompt",
   "version": "0.2.0",
-  "description": "在输入栏一键把草稿改写成更清晰、更具体的提示词：日常办公 / 代码开发 / 设计创意三种收束模式，网页端与桌面端通用。",
+  "description": "在 DeepSeek-Harness 桌面版的输入栏一键把草稿改写成更清晰、更具体的提示词：日常办公 / 代码开发 / 设计创意三种收束模式，支持一键还原原文。",
   "icon": "./icon.svg",
   "keywords": [
     "dsh",
