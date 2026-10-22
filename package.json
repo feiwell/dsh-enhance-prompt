@@ -1,7 +1,19 @@
 {
   "name": "dsh-enhance-prompt",
-  "description": "这是一个提示词增强插件",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "description": "在输入栏一键把草稿改写成更清晰、更具体的提示词：日常办公 / 代码开发 / 设计创意三种收束模式，网页端与桌面端通用。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek",
+    "deepseek-harness",
+    "cordis",
+    "prompt",
+    "prompt-engineering",
+    "prompt-enhance",
+    "composer",
+    "web-ui"
+  ],
   "type": "module",
   "main": "index.js",
   "exports": {
@@ -12,15 +24,24 @@
   "files": [
     "index.js",
     "lib/client.js",
-    "cordis.patch.yml"
+    "cordis.patch.yml",
+    "assets/readme",
+    "README.md",
+    "LICENSE"
   ],
   "license": "MIT",
+  "author": "feiwell",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/feiwell/dsh-enhance-prompt.git"
   },
+  "homepage": "https://github.com/feiwell/dsh-enhance-prompt#readme",
+  "bugs": {
+    "url": "https://github.com/feiwell/dsh-enhance-prompt/issues"
+  },
   "engines": {
-    "node": ">=22.19.0"
+    "node": ">=22.19.0",
+    "dsh": ">=0.2.1-rc.2 <0.3.0-0"
   },
   "dsh": {
     "bundle": {
@@ -30,5 +51,8 @@
       "inject": [],
       "platform": "web"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

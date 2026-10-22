@@ -9,6 +9,9 @@ const name = 'enhance-prompt'
 
 const inject = ['commands', 'llm', 'agentDefaultModel', 'webServer']
 
+/** Bodies above this size are refused before JSON parsing. */
+const MAX_BODY_BYTES = 64 * 1024
+
 /** System template for the enhancement call. */
 const SYSTEM_TEMPLATE = `You are a Prompt Engineering Expert specializing in improving user prompts for a development code assistant. When given a prompt, analyze and enhance it to create a more effective version while maintaining its core purpose. The requests are being made to an AI assistant that specializes in writing code.
 
@@ -102,7 +105,26 @@ const USER_TEMPLATE = `You are a prompt enhancement assistant. Improve the user 
     请解释这段代码的主要功能、执行流程和关键逻辑，并指出可能需要注意的边界情况。
     `
 
-const USAGE = '用法：/enhance 后面接要增强的提示词。例如 /enhance 帮我写个登录页'
+const USAGE = '用法：/enhance [--work|--code|--design] 后面接要增强的提示词。例如 /enhance 帮我写个登录页'
+
+/** The only modes the rewrite template knows how to steer. */
+const MODE_IDS = ['work', 'code', 'design']
+
+/** Anything the caller sends that is not one of the three modes means `work`. */
+function normalizeMode(value) {
+  return MODE_IDS.includes(value) ? value : 'work'
+}
+
+/**
+ * `/enhance --code 写个导出脚本` picks a mode inline. The flag is stripped
+ * from the draft so it never reaches the model as part of the prompt.
+ */
+function parseCommandInput(rawInput) {
+  const text = typeof rawInput === 'string' ? rawInput : ''
+  const match = /^\s*--(work|code|design)\b\s*/i.exec(text)
+  if (match === null) return { draft: text.trim(), mode: 'work' }
+  return { draft: text.slice(match[0].length).trim(), mode: match[1].toLowerCase() }
+}
 
 const MODE_GUIDES = {
   work: `日常办公。把提示词收束成办公任务，交付物是办公结果，不是设计稿，也不是实现代码：
@@ -124,7 +146,7 @@ const MODE_GUIDES = {
 }
 
 function renderUserPrompt(input, mode) {
-  const guide = MODE_GUIDES[mode] ?? MODE_GUIDES.work
+  const guide = MODE_GUIDES[normalizeMode(mode)]
   return USER_TEMPLATE.replace('{input}', input) + `\n\nTARGET MODE:\n${guide}\nDo not mention this mode instruction in the enhanced prompt.`
 }
 
@@ -196,7 +218,7 @@ async function executeEnhance(ctx, invocation) {
 
   const selection = ctx.agentDefaultModel.currentSelection()
   if (!selection?.provider || !selection?.model) {
-    return { kind: 'error', text: '没有可用的默认模型。先在设置里选一个模型再试。' }
+    return { kind: 'error', text: '没有可用的默认模型。先在设置里选一个模型再试。', status: 503 }
   }
 
   try {
@@ -227,8 +249,8 @@ function readBody(req) {
     let size = 0
     req.on('data', (chunk) => {
       size += chunk.length
-      if (size > 64 * 1024) {
-        reject(new Error('提示词太长'))
+      if (size > MAX_BODY_BYTES) {
+        reject(new Error('too-large'))
         req.destroy()
         return
       }
@@ -252,8 +274,11 @@ function apply(ctx) {
   ctx.commands.register({
     name: 'enhance',
     description: '把输入的提示词改写得更清晰、更具体',
-    input: { hint: '<提示词>' },
-    handler: (invocation) => executeEnhance(ctx, invocation),
+    input: { hint: '[--work|--code|--design] <提示词>' },
+    handler: (invocation) => {
+      const { draft, mode } = parseCommandInput(invocation.rawInput)
+      return executeEnhance(ctx, { rawInput: draft, mode, signal: invocation.signal })
+    },
   })
   ctx.effect(() => ctx.webServer.register({
     kind: 'exact',
@@ -266,12 +291,16 @@ function apply(ctx) {
       let payload
       try {
         payload = JSON.parse(await readBody(req))
-      } catch {
+      } catch (error) {
+        if (error instanceof Error && error.message === 'too-large') {
+          sendJson(res, 413, { error: '提示词太长（上限 48 KB），先精简再增强' })
+          return
+        }
         sendJson(res, 400, { error: '请求格式不对' })
         return
       }
       const draft = typeof payload?.input === 'string' ? payload.input.trim() : ''
-      const mode = payload?.mode === 'code' || payload?.mode === 'design' ? payload.mode : 'work'
+      const mode = normalizeMode(payload?.mode)
       if (draft.length === 0) {
         sendJson(res, 400, { error: '先输入内容，再增强提示词' })
         return
@@ -282,10 +311,10 @@ function apply(ctx) {
         signal: AbortSignal.timeout(30_000),
       })
       if (outcome.kind === 'error') {
-        sendJson(res, 502, { error: outcome.text })
+        sendJson(res, outcome.status ?? 502, { error: outcome.text })
         return
       }
-      sendJson(res, 200, { text: outcome.text })
+      sendJson(res, 200, { text: outcome.text, mode })
     },
   }), 'enhance-prompt route')
 }

@@ -1,4 +1,5 @@
-# Applied when this package is listed in dsh.profile.bundles.
+# Applied when this package is listed in dsh.profile.bundles, so the same
+# patch installs the plugin into any profile: web, desktop, or a custom one.
 # The row id is local to the profile; the package name must match package.json.
 
 - insert:
