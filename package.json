@@ -20,7 +20,8 @@
   "scripts": {
     "test": "node --test test/client.test.cjs test/server.test.mjs",
     "check:install": "node scripts/check-install.cjs .",
-    "check:live": "node scripts/live-check.cjs"
+    "check:live": "node scripts/live-check.cjs",
+    "release": "node scripts/release.cjs"
   },
   "exports": {
     ".": "./index.js",
@@ -33,6 +34,7 @@
     "cordis.patch.yml",
     "scripts/check-install.cjs",
     "scripts/live-check.cjs",
+    "scripts/release.cjs",
     "assets/readme",
     "icon.svg",
     "README.md",

@@ -111,6 +111,12 @@ node scripts/check-install.cjs <插件目录> "<DeepSeek Harness>/resources/app/
 
 `check:live` 走插件自己的 route handler 打真实模型，断言 README 承诺的行为而不只是「接口有响应」：代码模式确实补上约束、中文进中文出、英文进英文出、提问被改写而不是被回答、结果没有引号与重复段落。
 
+发布用 `npm run release`：它把 token 写进 `~/.npmrc`、跑测试、`npm publish`、核对 registry 上的版本与 tarball，再把**发布出来的 tarball 拉回来**跑一遍 `check:install`，最后还原 `~/.npmrc`（原本没有就删掉）。token 只在这一次运行里存在。
+
+```sh
+NPM_TOKEN=npm_xxx npm run release
+```
+
 ## 项目结构
 
 ```
@@ -121,6 +127,7 @@ icon.svg                   插件图标（市场条目与插件管理页使用�
 test/                      前后端回归测试（node --test）
 scripts/check-install.cjs  安装后自检
 scripts/live-check.cjs     真实模型端到端校验
+scripts/release.cjs        一键发布：token → 测试 → publish → 校验线上包 → 清理
 assets/readme/             README 使用的 SVG
 ```
 
