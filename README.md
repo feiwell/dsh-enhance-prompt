@@ -91,6 +91,7 @@ dsh plugin --profile desktop add git+https://github.com/feiwell/dsh-enhance-prom
 - 在 DSH `0.2.1-rc.2` 的桌面版实测通过（装进 desktop profile 后启动，前端模块图加载该插件、`/plugins/??dsh-enhance-prompt/client.js` 返回 200），`package.json` 的 `engines.dsh` 就是这个范围。
 - 图标按运行时 `dsh-client-ui-primitives` 的导出去取，新旧命名都覆盖；两套都取不到时退回内置 SVG，不会让输入栏消失。
 - Node ≥ 22.19.0，DeepSeek Harness 自带的 Node 已满足。
+- `package.json` 里的 `dsh.client.platform` 是 `web`：这个字段声明的是**客户端宿主的类型**，不是产品端。桌面版加载的也是 `web` 类型的 client 半区——已装的 `dsh-ssh-ops`、`dsh-purge-community` 都是这么声明的。
 
 ## 开发
 
