@@ -23,22 +23,21 @@ DeepSeek Harness 的输入栏插件：把你随手敲的草稿改写成一条更
 
 ## 安装
 
-插件市场里直接装：设置 → 插件市场，搜索 `dsh-enhance-prompt`，也可以在侧边栏「插件」页安装。
-
-命令行：
+从 GitHub 装，装完重启 DeepSeek-Harness，输入栏右侧就会出现模式菜单和增强按钮：
 
 ```sh
 # 桌面版
-dsh plugin --profile desktop add dsh-enhance-prompt
+dsh plugin --profile desktop add git+https://github.com/feiwell/dsh-enhance-prompt.git
 
 # 网页版
-dsh plugin --profile web add dsh-enhance-prompt
-
-# 直接从 GitHub 装
-dsh plugin --profile desktop add feiwell/dsh-enhance-prompt
+dsh plugin --profile web add git+https://github.com/feiwell/dsh-enhance-prompt.git
 ```
 
-装完重启 DeepSeek Harness，输入栏右侧就会出现模式菜单和增强按钮。插件自带 `cordis.patch.yml`，安装时会自动写进对应 profile，不用手改配置。
+装 `desktop` profile 前要先**完全退出 DeepSeek-Harness 桌面版**，否则它会提示 profile 被应用独占。
+
+插件自带 `cordis.patch.yml`，安装时会自动写进对应 profile，不用手改配置。也可以让 Agent 代劳：在 DSH 里说一句「装上 https://github.com/feiwell/dsh-enhance-prompt 这个插件」，它会调用插件管理器完成安装。
+
+> 本包尚未发布到 npm，`dsh plugin add dsh-enhance-prompt` 会报 404，请用上面的 git 地址。
 
 ## 怎么用
 
