@@ -2,6 +2,7 @@
   "name": "dsh-enhance-prompt",
   "version": "0.2.0",
   "description": "在输入栏一键把草稿改写成更清晰、更具体的提示词：日常办公 / 代码开发 / 设计创意三种收束模式，网页端与桌面端通用。",
+  "icon": "./icon.svg",
   "keywords": [
     "dsh",
     "dsh-plugin",
@@ -31,6 +32,7 @@
     "cordis.patch.yml",
     "scripts/check-install.cjs",
     "assets/readme",
+    "icon.svg",
     "README.md",
     "LICENSE"
   ],
