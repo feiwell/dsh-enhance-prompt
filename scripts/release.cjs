@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 /**
- * One-shot release: .npmrc -> publish -> verify the live tarball -> re-run the
- * install self-check against the published bytes.
+ * One-shot release: credential -> publish -> verify the live tarball -> re-run
+ * the install self-check against the published bytes.
  *
- *   NPM_TOKEN=npm_xxx node scripts/release.cjs
+ * Two ways in, because the npm website is not always reachable:
  *
- * The token is written to ~/.npmrc for the duration of the run and removed
- * afterwards, so nothing long-lived is left on disk.
+ *   NPM_TOKEN=npm_xxx node scripts/release.cjs   # token from the website
+ *   npm login --auth-type=legacy && node scripts/release.cjs
+ *
+ * The second form needs no website at all: legacy login talks to
+ * registry.npmjs.org and leaves its token in ~/.npmrc. When this script finds
+ * that existing credential it uses it as-is and never touches the file.
  */
 const fs = require("node:fs");
 const os = require("node:os");
@@ -17,15 +21,20 @@ const TOKEN = process.env.NPM_TOKEN;
 const REGISTRY = "https://registry.npmjs.org/";
 const NPMRC = path.join(os.homedir(), ".npmrc");
 
-if (!TOKEN) {
-  console.error("NPM_TOKEN is required (npmjs.com -> Access Tokens -> Generate New Token -> Publish)");
-  process.exit(2);
-}
-
 const run = (cmd, args, options = {}) => {
   const result = execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], ...options });
   return result.trim();
 };
+
+/** Is there already a usable credential on this machine? */
+function existingAccount() {
+  try {
+    return run("npm", ["whoami", `--registry=${REGISTRY}`]);
+  } catch {
+    return null;
+  }
+}
+
 
 function writeNpmrc() {
   if (fs.existsSync(NPMRC)) {
@@ -58,16 +67,43 @@ function removeToken() {
   const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf8"));
   console.log(`\n=== releasing ${pkg.name}@${pkg.version} ===\n`);
 
-  writeNpmrc();
+  // Prefer an existing login (npm login / npm adduser --auth-type=legacy);
+  // only inject a token when one was handed in.
+  const alreadyLoggedIn = existingAccount();
+  let touchedConfig = false;
+
+  if (TOKEN !== undefined && TOKEN !== "") {
+    writeNpmrc();
+    touchedConfig = true;
+  } else if (alreadyLoggedIn === null) {
+    console.error(
+      [
+        "No npm credential found.",
+        "",
+        "Either:",
+        "  NPM_TOKEN=npm_xxx node scripts/release.cjs",
+        "or log in once, without the website:",
+        "  npm adduser --registry=https://registry.npmjs.org/ --auth-type=legacy   (new account)",
+        "  npm login   --registry=https://registry.npmjs.org/ --auth-type=legacy   (existing account)",
+      ].join("\n"),
+    );
+    process.exitCode = 2;
+    return;
+  } else {
+    console.log(`using the existing login (${alreadyLoggedIn}); ~/.npmrc is left alone`);
+  }
+
   try {
     console.log("\n--- whoami ---");
     console.log(run("npm", ["whoami", `--registry=${REGISTRY}`]));
 
     console.log("\n--- test ---");
-    console.log(run("npm", ["test"]) .split("\n").slice(-6).join("\n"));
+    console.log(run("npm", ["test"]).split("\n").slice(-6).join("\n"));
 
     console.log("\n--- publish ---");
-    console.log(run("npm", ["publish", "--access", "public", `--registry=${REGISTRY}`]));
+    // NPM_OTP lets a 2FA-protected account publish without an interactive prompt
+    const otpArgs = process.env.NPM_OTP ? [`--otp=${process.env.NPM_OTP}`] : [];
+    console.log(run("npm", ["publish", "--access", "public", `--registry=${REGISTRY}`, ...otpArgs]));
 
     console.log("\n--- verify the live package ---");
     const version = run("npm", ["view", pkg.name, "version", `--registry=${REGISTRY}`]);
@@ -93,7 +129,7 @@ function removeToken() {
     console.log(`https://www.npmjs.com/package/${pkg.name}`);
     console.log(`install: dsh plugin --profile desktop add ${pkg.name}`);
   } finally {
-    removeToken();
+    if (touchedConfig) removeToken();
   }
 })().catch((error) => {
   console.error(`\nRELEASE FAILED: ${error.message}`);

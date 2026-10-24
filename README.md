@@ -111,11 +111,24 @@ node scripts/check-install.cjs <插件目录> "<DeepSeek Harness>/resources/app/
 
 `check:live` 走插件自己的 route handler 打真实模型，断言 README 承诺的行为而不只是「接口有响应」：代码模式确实补上约束、中文进中文出、英文进英文出、提问被改写而不是被回答、结果没有引号与重复段落。
 
-发布用 `npm run release`：它把 token 写进 `~/.npmrc`、跑测试、`npm publish`、核对 registry 上的版本与 tarball，再把**发布出来的 tarball 拉回来**跑一遍 `check:install`，最后还原 `~/.npmrc`（原本没有就删掉）。token 只在这一次运行里存在。
+发布用 `npm run release`：跑测试、`npm publish`、核对 registry 上的版本与 tarball，再把**发布出来的 tarball 拉回来**跑一遍 `check:install`。若通过 `NPM_TOKEN` 传入 token，脚本会临时写进 `~/.npmrc` 并在结束时还原（原本没有就删掉）；若本机已登录，则直接沿用、不碰该文件。
 
 ```sh
-NPM_TOKEN=npm_xxx npm run release
+NPM_TOKEN=npm_xxx npm run release   # 用网站生成的 token
+npm run release                     # 或者先用 CLI 登录，脚本会自动沿用
 ```
+
+没有 token 又打不开 npmjs.com 时，可以完全不经过网页，直接对 `registry.npmjs.org` 登录或注册：
+
+```sh
+# 已有账号
+npm login --registry=https://registry.npmjs.org/ --auth-type=legacy
+
+# 新建账号
+npm adduser --registry=https://registry.npmjs.org/ --auth-type=legacy
+```
+
+登录后凭据会写进 `~/.npmrc`，`npm run release` 会直接沿用、不再覆盖该文件。开了 2FA 的账号用 `NPM_OTP=123456 npm run release` 传一次性验证码。
 
 ## 项目结构
 
