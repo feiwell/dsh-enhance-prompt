@@ -55,9 +55,15 @@ else {
     const lines = fs.readFileSync(patchPath, "utf8").split("\n").map((l) => l.trim());
     const hasInsert = lines.includes("- insert:");
     const hasId = lines.some((l) => /^- id: \S+$/.test(l));
-    const hasName = lines.includes(`name: ${pkg.name}`);
+    // A scoped name starts with "@", which YAML treats as a reserved indicator,
+    // so `name: "@scope/pkg"` is the correct spelling and must count as a match.
+    const unquote = (value) => value.replace(/^["']|["']$/g, "");
+    const names = lines
+      .filter((l) => l.startsWith("name:"))
+      .map((l) => unquote(l.slice("name:".length).trim()));
+    const hasName = names.includes(pkg.name);
     if (hasInsert && hasId && hasName) ok("bundle patch inserts the plugin row", pkg.name);
-    else bad("bundle patch content", `insert=${hasInsert} id=${hasId} name=${hasName}`);
+    else bad("bundle patch content", `insert=${hasInsert} id=${hasId} name=${hasName} (found: ${names.join(", ") || "none"})`);
   }
 }
 

@@ -33,7 +33,7 @@ dsh plugin --profile desktop add git+https://github.com/feiwell/dsh-enhance-prom
 
 也可以让 Agent 代劳：在 DSH 里说一句「装上 https://github.com/feiwell/dsh-enhance-prompt 这个插件」，它会调用插件管理器完成安装。
 
-> 本包尚未发布到 npm，`dsh plugin add dsh-enhance-prompt` 会报 404，请用上面的 git 地址。
+> **不要执行 `dsh plugin add dsh-enhance-prompt`**：npm 上这个名字已于 2026-10-23 被另一位作者占用，装到的不是本插件。本包将发布为 `@feiwell/dsh-enhance-prompt`，在那之前请用上面的 git 地址安装。
 
 ## 怎么用
 
